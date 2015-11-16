@@ -10,6 +10,7 @@ Immediately after the title, there should be a synopsis which describes and summ
 # Data Processing
 ```{r}
 setwd ("c:/r_dat/repro_pa2")
+storm <- read.csv(bzfile(paste("repdata_data_StormData.csv.bz2", sep = "")),sep=",")
 ```
 
 

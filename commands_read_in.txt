@@ -1,0 +1,15 @@
+save(storm_sample,"storm_sample")
+Error in save(storm_sample, "storm_sample") : 
+  'file' muss angegeben werden
+> ?save
+> save(storm_sample,file="storm_sample.RData")
+> b<-load("storm_sample.RData")
+> b
+[1] "storm_sample"
+> ?load
+> load("storm_sample.RData", .GlobalEnv)
+> ?write.csv
+> write.csv(storm_sample,storm_sample2.csv)
+Error in write.table(storm_sample, storm_sample2.csv, col.names = NA,  : 
+  object 'storm_sample2.csv' not found
+> write.csv(storm_sample,file="storm_sample2.csv")
