@@ -9,8 +9,11 @@ Immediately after the title, there should be a synopsis which describes and summ
 
 # Data Processing
 ```{r}
+library(dplyr)
 setwd ("c:/r_dat/repro_pa2")
-storm <- read.csv(bzfile(paste("repdata_data_StormData.csv.bz2", sep = "")),sep=",")
+#storm <- read.csv(bzfile(paste("repdata_data_StormData.csv.bz2", sep = "")),sep=",")
+storm_sample<-tbl_df(read.csv("storm_sample2.csv"))
+head(storm_sample)
 ```
 
 
@@ -28,3 +31,10 @@ Your data analysis must address the following questions:
 1. Across the United States, which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health?  
 2. Across the United States, which types of events have the greatest economic consequences?  
 Consider writing your report as if it were to be read by a government or municipal manager who might be responsible for preparing for severe weather events and will need to prioritize resources for different types of events. However, there is no need to make any specific recommendations in your report.
+## Question 1
+First of all we group the storm data by all events, after that we calculate the sum of all fatalities and injuries by each event type. After that, we filter all events in which fatalities OR injuries occured.
+```{r}
+by_events<-group_by(storm_sample,EVTYPE)
+person_damage<-summarize(by_events,sum_fat=sum(FATALITIES),sum_inj=sum(INJURIES))
+filter(person_damage,sum_inj>0 | sum_fat>0)
+```
