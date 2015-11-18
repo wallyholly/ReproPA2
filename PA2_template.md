@@ -9,10 +9,6 @@ library(dplyr)
 ```
 
 ```
-## Warning: package 'dplyr' was built under R version 3.1.3
-```
-
-```
 ## 
 ## Attaching package: 'dplyr'
 ## 
@@ -26,6 +22,7 @@ library(dplyr)
 ```
 
 ```r
+library(ggplot2)
 setwd ("c:/r_dat/repro_pa2")
 #storm <- read.csv(bzfile(paste("repdata_data_StormData.csv.bz2", sep = "")),sep=",")
 storm_sample<-tbl_df(read.csv("storm_sample2.csv"))
@@ -75,7 +72,67 @@ First of all we group the storm data by all events, after that we calculate the 
 by_events<-group_by(storm_sample,EVTYPE)
 person_damage<-summarize(by_events,sum_fat=sum(FATALITIES),sum_inj=sum(INJURIES))
 person_damage<-filter(person_damage,sum_inj>0 | sum_fat>0)
-barplot(person_damage$sum_fat,names.arg=person_damage$EVTYPE,cex.names=0.5,las=2)
+person_damage$total_persons<-person_damage$sum_inj+person_damage$sum_fat
 ```
 
-![](PA2_template_files/figure-html/unnamed-chunk-2-1.png) 
+
+```r
+barplot_prep<-t(person_damage[-1])
+head(barplot_prep)
+```
+
+```
+##               [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11]
+## sum_fat          1    2    3    3    1    1    1    0    2     0     6
+## sum_inj          0    8    0    3    0    0    0    1    0     8    37
+## total_persons    1   10    3    6    1    1    1    1    2     8    43
+##               [,12] [,13] [,14] [,15] [,16] [,17] [,18] [,19]
+## sum_fat           1     1     0    47     3     1     1     0
+## sum_inj           0     2    10   602    61     0    30     3
+## total_persons     1     3    10   649    64     1    31     3
+```
+
+```r
+dim(barplot_prep)
+```
+
+```
+## [1]  3 19
+```
+
+```r
+dim(person_damage)
+```
+
+```
+## [1] 19  4
+```
+
+```r
+head(person_damage)
+```
+
+```
+## Source: local data frame [6 x 4]
+## 
+##           EVTYPE sum_fat sum_inj total_persons
+##           (fctr)   (int)   (int)         (int)
+## 1           COLD       1       0             1
+## 2 EXCESSIVE HEAT       2       8            10
+## 3   EXTREME COLD       3       0             3
+## 4    FLASH FLOOD       3       3             6
+## 5          FLOOD       1       0             1
+## 6           HEAT       1       0             1
+```
+
+```r
+colnames(barplot_prep)<-person_damage$EVTYPE
+barplot(barplot_prep,beside=TRUE,cex.names=0.5,las=2)
+```
+
+![](PA2_template_files/figure-html/unnamed-chunk-3-1.png) 
+
+
+
+```
+
