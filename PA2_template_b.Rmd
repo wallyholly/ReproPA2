@@ -36,7 +36,6 @@ First of all we group the storm data by all events, after that we calculate the 
 ```{r}
 by_events<-group_by(storm_sample,EVTYPE)
 person_damage<-summarize(by_events,sum_fat=sum(FATALITIES),sum_inj=sum(INJURIES))
-person_damage<-filter(person_damage,sum_inj>0 | sum_fat>0)
-barplot(person_damage$sum_fat,names.arg=person_damage$EVTYPE,cex.names=0.5,las=2)
+damages<-filter(person_damage,sum_inj>0 | sum_fat>0)
 
 ```

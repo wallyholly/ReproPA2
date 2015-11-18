@@ -9,6 +9,10 @@ library(dplyr)
 ```
 
 ```
+## Warning: package 'dplyr' was built under R version 3.1.3
+```
+
+```
 ## 
 ## Attaching package: 'dplyr'
 ## 
@@ -70,31 +74,8 @@ First of all we group the storm data by all events, after that we calculate the 
 ```r
 by_events<-group_by(storm_sample,EVTYPE)
 person_damage<-summarize(by_events,sum_fat=sum(FATALITIES),sum_inj=sum(INJURIES))
-filter(person_damage,sum_inj>0 | sum_fat>0)
+person_damage<-filter(person_damage,sum_inj>0 | sum_fat>0)
+barplot(person_damage$sum_fat,names.arg=person_damage$EVTYPE,cex.names=0.5,las=2)
 ```
 
-```
-## Source: local data frame [19 x 3]
-## 
-##                       EVTYPE sum_fat sum_inj
-##                       (fctr)   (int)   (int)
-## 1                       COLD       1       0
-## 2             EXCESSIVE HEAT       2       8
-## 3               EXTREME COLD       3       0
-## 4                FLASH FLOOD       3       3
-## 5                      FLOOD       1       0
-## 6                       HEAT       1       0
-## 7                 HEAVY SNOW       1       0
-## 8                  HIGH WIND       0       1
-## 9  HURRICANE OPAL/HIGH WINDS       2       0
-## 10                 ICE STORM       0       8
-## 11                 LIGHTNING       6      37
-## 12               RIP CURRENT       1       0
-## 13              RIP CURRENTS       1       2
-## 14         THUNDERSTORM WIND       0      10
-## 15                   TORNADO      47     602
-## 16                 TSTM WIND       3      61
-## 17         UNSEASONABLY WARM       1       0
-## 18              WINTER STORM       1      30
-## 19            WINTER WEATHER       0       3
-```
+![](PA2_template_files/figure-html/unnamed-chunk-2-1.png) 
