@@ -66,7 +66,7 @@ img {
 
 <div id="synopsis" class="section level1">
 <h1>Synopsis</h1>
-<p>Immediately after the title, there should be a synopsis which describes and summarizes your analysis in at most 10 complete sentences.</p>
+<p>This document presents an analysis of weather event types and their negative impacts on economic factors (property and crop damages) and personal health (number of fatalities and number of injuries). It is analyzed which weather events have the largest impacts on each, health and economy.</p>
 </div>
 <div id="data-processing" class="section level1">
 <h1>Data Processing</h1>
@@ -82,39 +82,134 @@ img {
 ## 
 ##     intersect, setdiff, setequal, union</code></pre>
 <pre class="r"><code>setwd (&quot;c:/r_dat/repro_pa2&quot;)
-#storm &lt;- read.csv(bzfile(paste(&quot;repdata_data_StormData.csv.bz2&quot;, sep = &quot;&quot;)),sep=&quot;,&quot;)
-storm_sample&lt;-tbl_df(read.csv(&quot;storm_sample2.csv&quot;))
-head(storm_sample)</code></pre>
-<pre><code>## Source: local data frame [6 x 38]
-## 
-##        X STATE__          BGN_DATE    BGN_TIME TIME_ZONE COUNTY COUNTYNAME
-##    (int)   (int)            (fctr)      (fctr)    (fctr)  (int)     (fctr)
-## 1 273753      46 6/20/1996 0:00:00 02:00:00 PM       CST    127      UNION
-## 2 786503      72  9/5/2009 0:00:00 06:42:00 AM       AST      4     PRZ004
-## 3 814171      29 6/14/2010 0:00:00 09:00:00 AM       CST    127     MARION
-## 4 300285      40 6/16/1997 0:00:00 09:14:00 PM       CST     19     CARTER
-## 5 253373      12 8/19/1996 0:00:00 02:15:00 PM       EST     21    COLLIER
-## 6 607877      12  4/8/2006 0:00:00 06:15:00 PM       EST     79    MADISON
-## Variables not shown: STATE (fctr), EVTYPE (fctr), BGN_RANGE (dbl), BGN_AZI
-##   (fctr), BGN_LOCATI (fctr), END_DATE (fctr), END_TIME (fctr), COUNTY_END
-##   (int), COUNTYENDN (lgl), END_RANGE (dbl), END_AZI (fctr), END_LOCATI
-##   (fctr), LENGTH (dbl), WIDTH (int), F (int), MAG (int), FATALITIES (int),
-##   INJURIES (int), PROPDMG (dbl), PROPDMGEXP (fctr), CROPDMG (dbl),
-##   CROPDMGEXP (fctr), WFO (fctr), STATEOFFIC (fctr), ZONENAMES (fctr),
-##   LATITUDE (int), LONGITUDE (int), LATITUDE_E (int), LONGITUDE_ (int),
-##   REMARKS (fctr), REFNUM (int)</code></pre>
-<p>There should be a section titled Data Processing which describes (in words and code) how the data were loaded into R and processed for analysis. In particular, your analysis must start from the raw CSV file containing the data. You cannot do any preprocessing outside the document. If preprocessing is time-consuming you may consider using the cache = TRUE option for certain code chunks.</p>
-</div>
-<div id="publication" class="section level1">
-<h1>Publication</h1>
-<p>For this assignment you will need to publish your analysis on RPubs.com. If you do not already have an account, then you will have to create a new account. After you have completed writing your analysis in RStudio, you can publish it to RPubs by doing the following:<br /> * In RStudio, make sure your R Markdown document (.Rmd) document is loaded in the editor<br /> * Click the Knit HTML button in the doc toolbar to preview your document.<br /> * In the preview window, click the Publish button.<br />Once your document is published to RPubs, you should get a unique URL to that document. Make a note of this URL as you will need it to submit your assignment.</p>
-</div>
-<div id="questions" class="section level1">
-<h1>Questions</h1>
-<p>Your data analysis must address the following questions:<br />1. Across the United States, which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health?<br />2. Across the United States, which types of events have the greatest economic consequences?<br />Consider writing your report as if it were to be read by a government or municipal manager who might be responsible for preparing for severe weather events and will need to prioritize resources for different types of events. However, there is no need to make any specific recommendations in your report. ## Question 1 First of all we group the storm data by all events, after that we calculate the sum of all fatalities and injuries by each event type. After that, we filter all events in which fatalities OR injuries occured.</p>
-<pre class="r"><code>by_events&lt;-group_by(storm_sample,EVTYPE)
+storm &lt;- read.csv(bzfile(paste(&quot;repdata_data_StormData.csv.bz2&quot;, sep = &quot;&quot;)),sep=&quot;,&quot;)
+#storm&lt;-tbl_df(read.csv(&quot;storm_sample2.csv&quot;))
+
+# The EVTYPE levels are not clean.  The following section is an attempt to clean up
+# and categorize all levels to the 47 listed in the Storm Data Documentation in Section 2.1.1
+storm$EVTYPE &lt;- gsub(&quot;^(HEAT).*&quot;, &quot;HEAT&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(RECORD HEAT).*&quot;, &quot;HEAT&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(EXTREME HEAT).*&quot;, &quot;HEAT&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(Heat).*&quot;, &quot;HEAT&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(EXCESSIVE HEAT).*&quot;, &quot;HEAT&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(TSTM).*&quot;, &quot;THUNDER STORM&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(THUNDERSTORM).*&quot;, &quot;THUNDER STORM&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(TROPICAL STORM).*&quot;, &quot;TROPICAL STORM&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(FLASH FLOOD).*&quot;, &quot;FLOOD&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(WIND).*&quot;, &quot;WIND&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(STRONG WIND).*&quot;, &quot;WIND&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(HIGH WIND).*&quot;, &quot;WIND&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(HURRICANE).*&quot;, &quot;HURICCANE&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(SNOW).*&quot;, &quot;SNOW&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(HEAVY SNOW).*&quot;, &quot;SNOW&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(FIRE).*&quot;, &quot;FIRE&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(WILD/FOREST FIRE).*&quot;, &quot;FIRE&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(WILDFIRE).*&quot;, &quot;FIRE&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(WILD FIRES).*&quot;, &quot;FIRE&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(HAIL).*&quot;, &quot;HAIL&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(BLIZZARD).*&quot;, &quot;BLIZZARD&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(COLD).*&quot;, &quot;COLD&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(WINTER WEATHER).*&quot;, &quot;COLD&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(EXTREME COLD).*&quot;, &quot;COLD&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(RIP).*&quot;, &quot;RIP&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(FOG).*&quot;, &quot;FOG&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(DENSE FOG).*&quot;, &quot;FOG&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(AVALANCHE).*&quot;, &quot;AVALANCHE&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(AVALANCE).*&quot;, &quot;AVALANCHE&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(RAIN).*&quot;, &quot;RAIN&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(HEAVY RAIN).*&quot;, &quot;RAIN&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(HIGH SURF).*&quot;, &quot;SURF&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(HEAVY SURF).*&quot;, &quot;SURF&quot;, storm$EVTYPE)
+storm$EVTYPE &lt;- gsub(&quot;^(SURF).*&quot;, &quot;SURF&quot;, storm$EVTYPE)</code></pre>
+<div id="data-preparation-for-the-results-of-question-1" class="section level2">
+<h2>Data preparation for the results of question 1</h2>
+<p>We group the storm data by EVTYPE and calculate the sum of all fatalities and injuries by each event type for the grouped stormdata with the summarize function. After that, we filter all events in which fatalities OR injuries occured. Then we sort the data by the sum of fatalities and then by the sum of injuries.</p>
+<pre class="r"><code>by_events&lt;-group_by(storm,EVTYPE)
 person_damage&lt;-summarize(by_events,sum_fat=sum(FATALITIES),sum_inj=sum(INJURIES))
-damages&lt;-filter(person_damage,sum_inj&gt;0 | sum_fat&gt;0)</code></pre>
+pdamages&lt;-filter(person_damage,sum_inj&gt;0 | sum_fat&gt;0)
+pdamages&lt;-arrange(pdamages, desc(sum_fat), desc(sum_inj))</code></pre>
+</div>
+<div id="data-preparation-for-the-results-of-question-2" class="section level2">
+<h2>Data preparation for the results of question 2</h2>
+<p>For the property damage values and the crop damage values, the units of measurements (PROPDMGEXP, CROPDMGEXP) are replaced by numeric values in the storm data set. After that the values in PROPDMG and CROPDMG are multiplied by the numeric values of the units of measurement. We then group the processed data by the weather event variable EVTYPE. After that the amounts of damages for both types (property and crop) are calculated (sum_precondam and sum_crecondam). The data are filtered, sorted in the last step.</p>
+<pre class="r"><code>storm$PROPDMGEXP &lt;- gsub(&quot;\\-|\\+|\\?|0&quot;, &quot;1&quot;, storm$PROPDMGEXP)
+storm$PROPDMGEXP &lt;- gsub(&quot;h|H|2&quot;,&quot;100&quot;, storm$PROPDMGEXP)
+storm$PROPDMGEXP &lt;- gsub(&quot;k|K|3&quot;,&quot;1000&quot;, storm$PROPDMGEXP)
+storm$PROPDMGEXP &lt;- gsub(&quot;4&quot;,&quot;10000&quot;, storm$PROPDMGEXP)
+storm$PROPDMGEXP &lt;- gsub(&quot;5&quot;,&quot;100000&quot;, storm$PROPDMGEXP)
+storm$PROPDMGEXP &lt;- gsub(&quot;m|M|6&quot;,&quot;1000000&quot;, storm$PROPDMGEXP)
+storm$PROPDMGEXP &lt;- gsub(&quot;7&quot;,&quot;10000000&quot;, storm$PROPDMGEXP)
+storm$PROPDMGEXP &lt;- gsub(&quot;8&quot;,&quot;100000000&quot;, storm$PROPDMGEXP)
+storm$PROPDMGEXP &lt;- gsub(&quot;b|B|9&quot;,&quot;1000000000&quot;, storm$PROPDMGEXP)
+storm$PROPDMGEXP &lt;- as.numeric(storm$PROPDMGEXP)
+
+storm$CROPDMGEXP &lt;- gsub(&quot;\\-|\\+|\\?|0&quot;, &quot;1&quot;, storm$CROPDMGEXP)
+storm$CROPDMGEXP &lt;- gsub(&quot;h|H|2&quot;,&quot;100&quot;, storm$CROPDMGEXP)
+storm$CROPDMGEXP &lt;- gsub(&quot;k|K|3&quot;,&quot;1000&quot;, storm$CROPDMGEXP)
+storm$CROPDMGEXP &lt;- gsub(&quot;4&quot;,&quot;10000&quot;, storm$CROPDMGEXP)
+storm$CROPDMGEXP &lt;- gsub(&quot;5&quot;,&quot;100000&quot;, storm$CROPDMGEXP)
+storm$CROPDMGEXP &lt;- gsub(&quot;m|M|6&quot;,&quot;1000000&quot;, storm$CROPDMGEXP)
+storm$CROPDMGEXP &lt;- gsub(&quot;7&quot;,&quot;10000000&quot;, storm$CROPDMGEXP)
+storm$CROPDMGEXP &lt;- gsub(&quot;8&quot;,&quot;100000000&quot;, storm$CROPDMGEXP)
+storm$CROPDMGEXP &lt;- gsub(&quot;b|B|9&quot;,&quot;1000000000&quot;, storm$CROPDMGEXP)
+storm$CROPDMGEXP &lt;- as.numeric(storm$CROPDMGEXP)
+
+storm$PRECONDAM &lt;- storm$PROPDMG * storm$PROPDMGEXP
+storm$CRECONDAM &lt;- storm$CROPDMG * storm$CROPDMGEXP
+storm$ECONDAM &lt;- storm$PRECONDAM + storm$CRECONDAM
+
+by_events_econ&lt;-group_by(storm,EVTYPE)
+econ_damage&lt;-summarize(by_events_econ, sum_econdam=sum(ECONDAM))
+edamages&lt;-filter(econ_damage,sum_econdam&gt;0)
+edamages&lt;-arrange(edamages, desc(sum_econdam))</code></pre>
+</div>
+</div>
+<div id="results" class="section level1">
+<h1>Results</h1>
+<div id="results-q1" class="section level2">
+<h2>Results Q1</h2>
+<pre class="r"><code>pdamages&lt;-head(pdamages,10)
+print(pdamages)</code></pre>
+<pre><code>## Source: local data frame [10 x 3]
+## 
+##           EVTYPE sum_fat sum_inj
+##            (chr)   (dbl)   (dbl)
+## 1        TORNADO    5633   91346
+## 2           HEAT    3119    9224
+## 3          FLOOD    1488    8574
+## 4      LIGHTNING     816    5230
+## 5  THUNDER STORM     710    9508
+## 6            RIP     577     529
+## 7           COLD     499     853
+## 8           WIND     428    1859
+## 9      AVALANCHE     225     170
+## 10  WINTER STORM     206    1321</code></pre>
+<pre class="r"><code>par(mfrow=c(1,2))
+barplot(pdamages$sum_fat,names.arg=pdamages$EVTYPE,cex.names=0.5,las=2)
+barplot(pdamages$sum_inj,names.arg=pdamages$EVTYPE,cex.names=0.5,las=2)</code></pre>
+<p><img src="data:image/png;base64,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" /></p>
+</div>
+<div id="results-q2" class="section level2">
+<h2>Results Q2</h2>
+<pre class="r"><code>edamages&lt;-head(edamages,10)
+print(edamages)</code></pre>
+<pre><code>## Source: local data frame [10 x 2]
+## 
+##                        EVTYPE sum_econdam
+##                         (chr)       (dbl)
+## 1  TORNADOES, TSTM WIND, HAIL  1602500000
+## 2     WINTER STORM HIGH WINDS    65000000
+## 3        Heavy Rain/High Surf    15000000
+## 4             LAKESHORE FLOOD     7540000
+## 5                FOREST FIRES     5500000
+## 6                Frost/Freeze     1100000
+## 7       DUST STORM/HIGH WINDS      550000
+## 8    MARINE THUNDERSTORM WIND      486400
+## 9       ASTRONOMICAL LOW TIDE      320000
+## 10                  GLAZE ICE      305300</code></pre>
+<pre class="r"><code>barplot(edamages$sum_econdam, names.arg=edamages$EVTYPE,cex.names=0.5,las=2)</code></pre>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAqAAAAHgCAMAAABNUi8GAAAAjVBMVEUAAAAAADoAAGYAOpAAZrY6AAA6ADo6AGY6Ojo6OpA6ZrY6kNtmAABmADpmOjpmOpBmZmZmZpBmZrZmtv+QOgCQOjqQOmaQZpCQkNuQ2/+2ZgC2Zjq2Zma2/7a2//++vr7bkDrbkGbbkJDbtrbb25Db2//b/7bb/9vb////tmb/trb/25D//7b//9v///8iok2VAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAQb0lEQVR4nO3dC3fi1hmFYc3YTJJCOo2hSU0bh96SoVz+/8/rERICjBj87RFHW/h91srEBmNs/HIkHSRRbAFjRd8/APA1BAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprBAprOQItAjL8OBiSLIH+9mYEilMECmsECmsECmsECmsECmsECmsECmsECmsECmsECmsECmsECmsECmtVEavvXurP15Nyp7fH1q9dFsWH5/KDxf6DN94HgUK1K2I9+bgPdPXpYnnLFGX533ae/lmNpm+/DwKFqiwijYxNoMvmo9c2s3H6d/6Yci4/WDx8efN9EChURdnn+JDlolm6p+V4Md59VI2q1Zi5+PiyG0WrsfSN90GgUFVFHAKdf193udgtx3eF1oHu/l02gRZHy/ivH7JBoJC9CnQ9KZfc83G9HK8ur9PcD5z1UFq0rYQSKLr1egTdf1rlmFpcjaqhcXpYslcbSQSKDFoDTV0u60V2WeGrRXwaYdNW1a8/tq2DEii61R7op+fjbaBXG0n1hd+1be4TKLr1KtCqwvTpenJYgleBNtNMlfZpJgJFt8624ssA00bSbit+t7bZ2E/UryePF2eZCBTdOgp0M9vFWa947uZBT5f8+1c4y5dDL8yCEii61XERBIpuESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisVUWsvnvZX7Asig/P7V/bXLW4+DUEim7tilhPPu4DXabylu31NVfN0z+r0fTitzu7kEChKotII+M+0M1snP6dP7Z8ZXPVelJ+sHj4cuHbnV9IoFAVZZ/j5T7QamBclJ+m5Xgxri789Hx8VTXAtg+zBIpuVUUcAt21WH662C3Hx4cLm6vqQIujZXzRaL0PAoXqVaDN6Fgtx6vL6zT3V9VDadG2Ekqg6NalQKsPUourUTU0Tg9L9mojiUCRwaVF/LJeZE+3Z4v4tKWUtqp+/ZF1UNze60BPt4TqC083kuoLD1OnZ9/u9YUECtWrQI/mkg5L8CrQVzNQTDMhh1eBHmbjF/sp+cb+qvXk8dIsE4GiY0eBbmbl6Lg4ej2zmb+v7K9aT3ipE5mwswisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESisESispSLWkyJ5rC9YFsWH5/avba5apK+fXvp2LRcSKFSpiNWnoyCXKcFle6HNVYvyg/ZCCRTdSkUsP740n25m4/Tv/LHlK5urNrPHS19DoOhYKmJxlNpqVA6MizLZcjk+ri7cDbHNVQSKfFIR8++bFOsWyzG1XI6vRuPDhadXsYhHFkXaRnr4kiqtCq1WP9O/60l5QbX0r9P80Px7tiFVNFrvg0Ch2hdRr4g2FVYfpMX6alSVNz0EOk9fWw+ul77d6YUECtW+iGoN87AcX9Yj4nR7tog/Wk+9+O1OLyRQqJpAq7mmJr7jqaZXG0lHy/qL3+70QgKFqqjDqxfxzVzSenLYCKoCba46ucHZt2u7kEChKuoJo3oj6XQ2fjv/0DaHzzoosimLmFfrmtX85uL49czTUbK5an6Yl2r5ducXEihU7CwCawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKa66BFgHd/gqwYhsooy5KBAprBAprBAprBAprBAprBApr5V93WRQfnvcXnHxyqrnq8tcQKLqV/rrLFNtyH9zJJ6eaq77yNQSKbhXbzWyc/j9/3H168smp5qqvfE2/gfLq0x0qtqvRNP1/8fGl/PTok0X6M453X7P69Hx81ckNzr5d24W5AiXq+1PU+S3rQJtPFmkZvhqNDxc2V53c4OzbtV3oHKhyGyFqx9sM4hlX1GuT9Tpl88l6UrZZVVgXub/q5Ab1d/nq73zrB5rbfFuguW4juRRo9UFamq9G1Z1MvxYocCOXFvHLOv7pNrSIB7p1aSPpeIAMbCQB3bo0zbSeTJuvqQJ90zQT0K2LE/XlVvx2fryi+ZaJeqBb5RbWonrlcjN7PHxSzYOeLsaPr6JPZDGIuTC8XwQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKawQKa3ce6PovT33/CPgmvQb6j9hRI8uHP2bF9PrXHdnMirPdWm9C+Nmc72f9tF1Mo38f6UbXDCjQzc8vy/Hmly+hu1gLI2h5IGtwh2zpZ9suisdl7MgZ6X6E3+fdB7qexEc29UGLShGk230ORSD+bOlmsdso95Px97mfQBWbX/74+SX4QFfPhPATYRse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" /></p>
+</div>
 </div>
 
 
